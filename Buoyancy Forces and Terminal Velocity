@@ -1,6 +1,6 @@
-#the code below was created and was used to modify the current plot_r
+#the code below was created and was used to modify the current plot_r file associated with TigReS and calc_r files
 #this code was written to calculate the Buoyancy Forces and Terminal Velocity
-#Due to privacy reasons, the rest of plot_r is not included in this file. There will be variables refrenced in the code that were prevoiusly defined in the python file
+#Due to privacy reasons, the rest of plot_r is not included in this file. There will be variables refrenced in the code that were prevoiusly defined in the plot_r python file
 
 
 #Calculating net buoyancy forces
