@@ -1,0 +1,131 @@
+#the code below was created and was used to modify the current plot_r
+#this code was written to calculate the Buoyancy Forces and Terminal Velocity
+#Due to privacy reasons, the rest of plot_r is not included in this file. There will be variables refrenced in the code that were prevoiusly defined in the python file
+
+
+#Calculating net buoyancy forces
+
+SMB_Vmw=CritRads.loc[mask,'Vmw'].to_numpy()*1.0e3  # L/mol
+#volume of each individual bubble given the radius
+SMB_volume = (4/3) * np.pi * r**3 #nm^3
+#Density of aqueous phase = [(N2 aq. mol % X MWN2) + (H2O aq. mol % X MWH020)] / (Vmw))
+SMB_density_aq = ((x1l * 28.0134) + ((1-x1l) * 18.01528)) / SMB_Vmw #g/L
+
+SMB_density_bub = (((1 - x2g) * 28.0134) + (x2g * 18.01528)) / Vmg #g/L
+
+SMB_buoyancy_forces = (SMB_density_aq - SMB_density_bub) * SMB_volume * 1.0e-27 * 9.81
+
+
+#print(SMB_buoyancy_forces)
+#plt.show()
+#plt.plot(Pw, SMB_buoyancy_forces)
+Pw=CritRads.loc[mask,'Pw'].to_numpy() # bar
+#print(Pw)
+plt.close()
+fig_SMB = plt.figure(figsize=(10,8))
+plt.plot(Pw, SMB_buoyancy_forces)
+plt.xlabel('$P_L$, bar')
+plt.ylabel('Buoyancy Forces, N')
+plt.ylim(1.0e-22, 1e-16)
+plt.yscale("log")
+plt.savefig('buoyancy.png',dpi=400)
+plt.close()
+
+#Calculating Terminal Velocity
+
+if T == 283.15:
+    SMB_Water_Vis = np.array([1.3030, 1.3, 1.2972, 1.2972, 1.2972, 1.2945, 1.2893, 1.2846])
+elif T == 295.15:
+    SMB_Water_Vis = np.array([0.95366, 0.95293, 0.95223, 0.95224, 0.95224, 0.95160, 0.95046, 0.94952])
+elif T == 323.15:
+    SMB_Water_Vis = np.array([0.54717, 0.54788, 0.54860, 0.54859, 0.54859, 0.54931, 0.55079, 0.55229])
+
+SMB_Aqueous_Vis = SMB_Water_Vis * 1.1
+
+SMB_water_terminal_velocity = (10**12 * SMB_buoyancy_forces) / (6*np.pi*SMB_Water_Vis*r)
+SMB_aquoues_terminal_velocity =(10**12 * SMB_buoyancy_forces) / (6*np.pi*SMB_Aqueous_Vis*r)
+
+SMB_nm_water_terminal_velocity = 10**9 * SMB_water_terminal_velocity
+SMB_nm_aqueous_terminal_velocity = 10**9 * SMB_aquoues_terminal_velocity
+
+#Exporting the calculated data into an Excel file for futher analyis and presentation
+
+wb = xl.Workbook("Output_Collection.xlsx")
+worksheet = wb.add_worksheet("firstsheet")
+worksheet.write(0,0,'Pw')
+
+
+for a in range(len(Pw)):
+    pw = Pw[a]
+    pw = str(pw)
+    worksheet.write(a+1, 0, pw)
+worksheet.write(0,1,'r')
+for b in range(len(r)):
+    ra = r[b]
+    rad = str(ra)
+    worksheet.write(b+1, 1, rad)
+
+worksheet.write(0,2,'mw3')
+mw3 = Data['mw3']
+mw3 = str(mw3)
+worksheet.write(1,2,mw3)
+
+worksheet.write(0,8,'Nbbl')
+nbbl = Data['Nbbl']
+nbbl = str(nbbl)
+worksheet.write(1,8,nbbl)
+
+worksheet.write(0,14,'N2inG')
+N2inG = Data['N2inG']
+N2inG = str(N2inG)
+worksheet.write(1,14,N2inG)
+
+worksheet.write(0,20,'N2inW')
+N2inW = Data['N2inW']
+N2inW = str(N2inW)
+worksheet.write(1,20,N2inW)
+
+worksheet.write(0,26,'xN2wnc')
+xN2 = Data['xN2wnc']
+test = str(xN2)
+worksheet.write(1,26,test)
+
+worksheet.write(0,32,'G/W')
+GW = Data['G/W']
+GW = str(GW)
+worksheet.write(1,32,GW)
+
+worksheet.write(0,38,'Area')
+Area = Data['Area']
+Area = str(Area)
+worksheet.write(1,38,Area)
+
+worksheet.write(0,44, 'IFT')
+IFT = Data['IFT']
+IFT=str(IFT)
+worksheet.write(1,44,IFT)
+
+worksheet.write(0,50,'Pcap')
+Pw=Data['Pw']
+Pcap = Data['Pg']-Pw
+Pcap = str(Pcap)
+worksheet.write(1,50,Pcap)
+
+worksheet.write(0,56,'buoyancy')
+worksheet.write(0,57,'pure velocity')
+worksheet.write(0,58,'Aq velocity')
+for test in range(len(SMB_buoyancy_forces)):
+    Bouyance= str(SMB_buoyancy_forces[test])
+    worksheet.write(test+1, 56, Bouyance)
+    Pure_velocity = str(SMB_nm_water_terminal_velocity[test])
+    worksheet.write(test+1, 57, Pure_velocity)
+    Aq_velocity = str(SMB_nm_aqueous_terminal_velocity[test])
+    worksheet.write(test+1, 58, Aq_velocity)
+
+
+
+
+
+
+
+wb.close()
